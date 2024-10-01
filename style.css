@@ -25,3 +25,19 @@
   cursor: pointer;
   border: none;
 }
+
+.navigation-button {
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #048;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+.navigation-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
