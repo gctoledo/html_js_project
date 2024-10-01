@@ -1,6 +1,9 @@
 const planetsDiv = document.getElementById('planets')
 const nextBtn = document.getElementById('next')
 const prevBtn = document.getElementById('previous')
+const form = document.getElementById('search-form')
+const planetDetails = document.getElementById('planet-details')
+const planetName = document.getElementById('search')
 
 const apiUrl = 'https://swapi.dev/api/planets/'
 
@@ -9,11 +12,38 @@ let nextPageUrl = null
 let prevPageUrl = null
 let currentPage = 1
 
+const getData = async (url) => {
+  const response = await fetch(url)
+  const data = await response.json()
+
+  return data
+}
+
+const renderPlanetButton = (planet) => {
+  const planetButton = document.createElement('button')
+  planetButton.textContent = planet.name
+  planetButton.id = planet.name
+  planetButton.className = 'planet-button'
+
+  planetButton.addEventListener('click', () => {
+    planetDetails.innerHTML = ''
+    planetDetails.innerHTML = `
+      <h2>Nome: ${planet.name}</h2>
+      <p>Clima: ${planet.climate}</p>
+      <p>População: ${planet.population}</p>
+      <p>Terreno: ${planet.terrain}</p>
+    `
+  })
+
+  planetsDiv.appendChild(planetButton)
+}
+
 const showPlanets = async (url) => {
 
   try {
-    const response = await fetch(url)
-    const data = await response.json()
+    const data = await getData(url)
+
+    console.log(data.results)
 
     nextPageUrl = data.next
     prevPageUrl = data.previous
@@ -24,12 +54,7 @@ const showPlanets = async (url) => {
     planetsDiv.innerHTML = ''
 
     data.results.forEach(planet => {
-      const planetButton = document.createElement('button')
-      planetButton.textContent = planet.name
-      planetButton.id = planet.name
-      planetButton.className = 'planet-button'
-
-      planetsDiv.appendChild(planetButton)
+      renderPlanetButton(planet)
     })
   } catch (err) {
     console.error(err)
@@ -39,6 +64,7 @@ const showPlanets = async (url) => {
 nextBtn.addEventListener('click', () => {
   if (nextPageUrl) {
     currentPage++
+    planetDetails.innerHTML = ''
     showPlanets(nextPageUrl)
   }
 })
@@ -46,6 +72,7 @@ nextBtn.addEventListener('click', () => {
 prevBtn.addEventListener('click', () => {
   if (prevPageUrl) {
     currentPage--
+    planetDetails.innerHTML = ''
     showPlanets(prevPageUrl)
   }
 })
