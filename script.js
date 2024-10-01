@@ -43,8 +43,6 @@ const showPlanets = async (url) => {
   try {
     const data = await getData(url)
 
-    console.log(data.results)
-
     nextPageUrl = data.next
     prevPageUrl = data.previous
     
@@ -74,6 +72,22 @@ prevBtn.addEventListener('click', () => {
     currentPage--
     planetDetails.innerHTML = ''
     showPlanets(prevPageUrl)
+  }
+})
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault()
+
+  const data = await getData(`https://swapi.dev/api/planets/?search=${planetName.value}`)
+  planetsDiv.innerHTML = ''
+  planetName.value = ''
+
+  if (data.results.length > 0) {
+    data.results.forEach(planet => {
+      renderPlanetButton(planet)
+    })
+  } else {
+    planetsDiv.innerHTML = 'Nenhum planeta encontrado'
   }
 })
 
