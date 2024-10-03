@@ -2,8 +2,9 @@ const planetsDiv = document.getElementById('planets')
 const nextBtn = document.getElementById('next')
 const prevBtn = document.getElementById('previous')
 const form = document.getElementById('search-form')
-const planetDetails = document.getElementById('planet-details')
 const planetName = document.getElementById('search')
+const planetDetails = document.getElementById('planet-details')
+const residentDetails = document.getElementById('resident-details')
 
 const apiUrl = 'https://swapi.dev/api/planets/'
 
@@ -28,11 +29,31 @@ const renderPlanetButton = (planet) => {
   planetButton.addEventListener('click', () => {
     planetDetails.innerHTML = ''
     planetDetails.innerHTML = `
-      <h2>Nome: ${planet.name}</h2>
+      <p>Nome: ${planet.name}</p>
       <p>Clima: ${planet.climate}</p>
       <p>População: ${planet.population}</p>
       <p>Terreno: ${planet.terrain}</p>
     `
+
+    residentDetails.innerHTML = ''
+    residentDetails.innerHTML = '<h2>Residentes:</h2>'
+
+    Promise.all(
+      planet.residents.map((residentUrl) => {
+          return fetch(residentUrl)
+              .then(res => res.json());
+      })
+  )
+  .then((residents) => {
+      residents.forEach((resident) => {
+          residentDetails.innerHTML += `
+          <p>Nome: ${resident.name}</p>
+          `;
+      });
+  })
+  .catch((error) => {
+      console.error('Erro ao buscar os residentes:', error);
+  });
   })
 
   planetsDiv.appendChild(planetButton)
@@ -63,6 +84,7 @@ nextBtn.addEventListener('click', () => {
   if (nextPageUrl) {
     currentPage++
     planetDetails.innerHTML = ''
+    residentDetails.innerHTML = ''
     showPlanets(nextPageUrl)
   }
 })
@@ -71,6 +93,7 @@ prevBtn.addEventListener('click', () => {
   if (prevPageUrl) {
     currentPage--
     planetDetails.innerHTML = ''
+    residentDetails.innerHTML = ''
     showPlanets(prevPageUrl)
   }
 })
@@ -80,6 +103,8 @@ form.addEventListener('submit', async (e) => {
 
   const data = await getData(`https://swapi.dev/api/planets/?search=${planetName.value}`)
   planetsDiv.innerHTML = ''
+  planetDetails.innerHTML = ''
+  residentDetails.innerHTML = ''
   planetName.value = ''
 
   if (data.results.length > 0) {

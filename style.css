@@ -43,7 +43,8 @@
   cursor: not-allowed;
 }
 
-.planet-details {
+.planet-details,
+.resident-details {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -58,7 +59,6 @@
   background-color: #eee;
   color: black;
   font-weight: bold;
-  cursor: pointer;
 }
 
 .search-button {
@@ -70,4 +70,9 @@
   font-weight: bold;
   cursor: pointer;
   border: none;
+}
+
+.details {
+  display: flex;
+  gap: 100px;
 }
