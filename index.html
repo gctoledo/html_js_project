@@ -15,13 +15,28 @@
       <button type="submit" id="search-btn" class="search-button">Buscar</button>
     </form>
 
-    <div id="planets"></div>
+    <table id="planets">
+      <caption>Planetas</caption>
+      <thead>
+          <tr>
+              <th>Nome</th>
+              <th>Clima</th>
+              <th>População</th>
+              <th>Terreno</th>
+          </tr>
+      </thead>
+      <tbody id="planet-details"></tbody>
+  </table>
 
-    <div class="details">
-      <div id="planet-details" class="planet-details"></div>
-
-      <div id="resident-details" class="resident-details"></div>
-    </div>
+  <table id="residents">
+    <caption>Residentes</caption>
+    <thead>
+        <tr>
+            <th>Nome</th>
+        </tr>
+    </thead>
+    <tbody id="residents-details"></tbody>
+</table>
 
     <div id="navigation">
       <button id="previous" class="navigation-button" disabled>Anterior</button>

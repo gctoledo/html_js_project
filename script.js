@@ -1,17 +1,17 @@
-const planetsDiv = document.getElementById('planets')
 const nextBtn = document.getElementById('next')
 const prevBtn = document.getElementById('previous')
 const form = document.getElementById('search-form')
-const planetName = document.getElementById('search')
+const planetSearch = document.getElementById('search')
+const planetsTable = document.getElementById('planets')
 const planetDetails = document.getElementById('planet-details')
-const residentDetails = document.getElementById('resident-details')
+const residentsTable = document.getElementById('residents')
+const residentDetails = document.getElementById('residents-details')
 
 const apiUrl = 'https://swapi.dev/api/planets/'
 
 let currentPageUrl = 'https://swapi.dev/api/planets/'
 let nextPageUrl = null
 let prevPageUrl = null
-let currentPage = 1
 
 const getData = async (url) => {
   const response = await fetch(url)
@@ -20,44 +20,55 @@ const getData = async (url) => {
   return data
 }
 
+const createTableCell = (content) => {
+  const td = document.createElement('td');
+  td.textContent = content;
+  return td;
+};
+
 const renderPlanetButton = (planet) => {
-  const planetButton = document.createElement('button')
-  planetButton.textContent = planet.name
-  planetButton.id = planet.name
-  planetButton.className = 'planet-button'
+  const row = document.createElement('tr');
 
-  planetButton.addEventListener('click', () => {
-    planetDetails.innerHTML = ''
-    planetDetails.innerHTML = `
-      <p>Nome: ${planet.name}</p>
-      <p>Clima: ${planet.climate}</p>
-      <p>População: ${planet.population}</p>
-      <p>Terreno: ${planet.terrain}</p>
-    `
+  const name = createTableCell(planet.name);
+  name.style.cursor = 'pointer';
 
-    residentDetails.innerHTML = ''
-    residentDetails.innerHTML = '<h2>Residentes:</h2>'
+  const climate = createTableCell(planet.climate);
+  const population = createTableCell(planet.population);
+  const terrain = createTableCell(planet.terrain);
 
-    Promise.all(
-      planet.residents.map((residentUrl) => {
-          return fetch(residentUrl)
-              .then(res => res.json());
-      })
-  )
-  .then((residents) => {
-      residents.forEach((resident) => {
-          residentDetails.innerHTML += `
-          <p>Nome: ${resident.name}</p>
-          `;
-      });
-  })
-  .catch((error) => {
+
+  name.addEventListener('click', async () => {
+    residentDetails.innerHTML = '';
+
+    try {
+      const residents = await Promise.all(
+        planet.residents.map((residentUrl) => fetch(residentUrl).then(res => res.json()))
+      );
+
+      if (residents.length > 0) {
+        residents.forEach((resident) => {
+          const row = document.createElement('tr');
+  
+          const residentElement = createTableCell(resident.name);
+  
+          row.appendChild(residentElement);
+  
+          residentDetails.appendChild(row);
+        });
+      }
+
+    } catch (error) {
       console.error('Erro ao buscar os residentes:', error);
+    }
   });
-  })
 
-  planetsDiv.appendChild(planetButton)
-}
+  row.appendChild(name);
+  row.appendChild(climate);
+  row.appendChild(population);
+  row.appendChild(terrain);
+
+  planetDetails.appendChild(row);
+};
 
 const showPlanets = async (url) => {
 
@@ -70,8 +81,6 @@ const showPlanets = async (url) => {
     nextBtn.disabled = !nextPageUrl
     prevBtn.disabled = !prevPageUrl
 
-    planetsDiv.innerHTML = ''
-
     data.results.forEach(planet => {
       renderPlanetButton(planet)
     })
@@ -82,7 +91,6 @@ const showPlanets = async (url) => {
 
 nextBtn.addEventListener('click', () => {
   if (nextPageUrl) {
-    currentPage++
     planetDetails.innerHTML = ''
     residentDetails.innerHTML = ''
     showPlanets(nextPageUrl)
@@ -91,7 +99,6 @@ nextBtn.addEventListener('click', () => {
 
 prevBtn.addEventListener('click', () => {
   if (prevPageUrl) {
-    currentPage--
     planetDetails.innerHTML = ''
     residentDetails.innerHTML = ''
     showPlanets(prevPageUrl)
@@ -101,19 +108,15 @@ prevBtn.addEventListener('click', () => {
 form.addEventListener('submit', async (e) => {
   e.preventDefault()
 
-  const data = await getData(`https://swapi.dev/api/planets/?search=${planetName.value}`)
-  planetsDiv.innerHTML = ''
+  const data = await getData(`https://swapi.dev/api/planets/?search=${planetSearch.value}`)
   planetDetails.innerHTML = ''
   residentDetails.innerHTML = ''
-  planetName.value = ''
+  planetSearch.value = ''
+  currentPageUrl = 'https://swapi.dev/api/planets/'
 
-  if (data.results.length > 0) {
     data.results.forEach(planet => {
       renderPlanetButton(planet)
     })
-  } else {
-    planetsDiv.innerHTML = 'Nenhum planeta encontrado'
-  }
 })
 
 showPlanets(currentPageUrl)
